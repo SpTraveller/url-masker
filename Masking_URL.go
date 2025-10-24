@@ -164,16 +164,16 @@ func maskUrlInText(text []byte, urlInfo *URLInfo) []byte {
 
 func main() {
 
-	inputText := getUserInput()
-	fmt.Println(string(inputText))
+	inputUserText := getUserInput()
+	fmt.Println(string(inputUserText))
 
 	// Проверка на пустой ввод
-	if len(inputText) == 0 {
+	if len(inputUserText) == 0 {
 		fmt.Println("Empty input")
 		return
 	}
 
-	urlInfo := findUrl(inputText)
+	urlInfo := findUrl(inputUserText)
 
 	// Проверка на присутствие URL в тексте
 	if urlInfo == nil {
@@ -182,7 +182,7 @@ func main() {
 	}
 	fmt.Println(string(urlInfo.URL))
 
-	maskedURL := maskUrlInText(inputText, urlInfo)
-	fmt.Println(string(maskedURL))
+	maskedURLText := maskUrlInText(inputUserText, urlInfo)
+	fmt.Println(string(maskedURLText))
 
 }
