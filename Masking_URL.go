@@ -67,7 +67,7 @@ func main() {
 		userInput = scanner.Text()
 	}
 	receiveUserInput(userInput)
-	result := receiveUserInput(userInput)
-	fmt.Println("Result:", result)
+	resultOutput := receiveUserInput(userInput)
+	fmt.Println("Result:", resultOutput)
 
 }
