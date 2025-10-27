@@ -11,7 +11,7 @@ func receiveUserInput(userInput string) string {
 	pattern := "http://"
 	patternBytes := []byte(pattern)
 	userInputSlice := []byte(userInput)
-	result := ""
+	result := make([]byte, 0, len(userInput)*2)
 	currentPos := 0
 
 	// Ищем вхождения паттерна(http://) в слайсе ввода
@@ -26,10 +26,14 @@ func receiveUserInput(userInput string) string {
 		// Если паттерн найден
 		if match {
 			// Добавляем часть текста до найденного паттерна
-			result += string(userInputSlice[currentPos:i]) + pattern
+			result = append(result, userInputSlice[currentPos:i]...)
+			// Добавляем паттерн (http://)
+			result = append(result, patternBytes...)
+
 			// Начало данных после паттерна
 			startIndex := i + len(patternBytes)
 			remainingSlice := userInputSlice[startIndex:]
+
 			// Ищем первый пробел после URL
 			spaceIndex := -1
 			for j := 0; j < len(remainingSlice); j++ {
@@ -38,25 +42,32 @@ func receiveUserInput(userInput string) string {
 					break
 				}
 			}
+
 			// Определяем конец URL
 			urlEndIndex := len(remainingSlice)
 			if spaceIndex != -1 {
 				urlEndIndex = spaceIndex
 			}
-			// Заменяем URL на звездочки
-			urlLength := urlEndIndex
-			for k := 0; k < urlLength; k++ {
-				result += "*"
+
+			// Создаём слайс звёздочек
+			asterisks := make([]byte, urlEndIndex)
+			for k := 0; k < urlEndIndex; k++ {
+				asterisks[k] = '*'
 			}
+			// Добавляем звёздочки в результат
+			result = append(result, asterisks...)
+
 			// Обновляем текущую позицию
 			currentPos = startIndex + urlEndIndex
 			// Пропускаем проверку внутри URL
 			i = currentPos - 1
 		}
 	}
+
 	// Добавляем оставшуюся часть строки
-	result += string(userInputSlice[currentPos:])
-	return result
+	result = append(result, userInputSlice[currentPos:]...)
+
+	return string(result)
 }
 
 func main() {
