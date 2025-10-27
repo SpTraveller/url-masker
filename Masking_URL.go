@@ -11,10 +11,11 @@ func receiveUserInput(userInput string) string {
 	pattern := "http://"
 	patternBytes := []byte(pattern)
 	userInputSlice := []byte(userInput)
+	result := ""
+	currentPos := 0
 
-	// Ищем паттерн в срезе байтов
-	patternIndex := -1
-	for i := 0; i < len(userInput)-len(patternBytes); i++ {
+	// Ищем вхождения паттерна(http://) в слайсе ввода
+	for i := 0; i <= len(userInput)-len(patternBytes); i++ {
 		match := true
 		for j := 0; j < len(patternBytes); j++ {
 			if userInputSlice[i+j] != patternBytes[j] {
@@ -22,40 +23,39 @@ func receiveUserInput(userInput string) string {
 				break
 			}
 		}
-		// Если паттерн не найден
+		// Если паттерн найден
 		if match {
-			patternIndex = i
-			break
+			// Добавляем часть текста до найденного паттерна
+			result += string(userInputSlice[currentPos:i]) + pattern
+			// Начало данных после паттерна
+			startIndex := i + len(patternBytes)
+			remainingSlice := userInputSlice[startIndex:]
+			// Ищем первый пробел после URL
+			spaceIndex := -1
+			for j := 0; j < len(remainingSlice); j++ {
+				if remainingSlice[j] == ' ' {
+					spaceIndex = j
+					break
+				}
+			}
+			// Определяем конец URL
+			urlEndIndex := len(remainingSlice)
+			if spaceIndex != -1 {
+				urlEndIndex = spaceIndex
+			}
+			// Заменяем URL на звездочки
+			urlLength := urlEndIndex
+			for k := 0; k < urlLength; k++ {
+				result += "*"
+			}
+			// Обновляем текущую позицию
+			currentPos = startIndex + urlEndIndex
+			// Пропускаем проверку внутри URL
+			i = currentPos - 1
 		}
 	}
-	// Начало данных после паттерна
-	startIndex := patternIndex + len(patternBytes)
-	remainingSlice := userInputSlice[startIndex:]
-	// Ищем первый пробел после URL
-	spaceIndex := -1
-	for i := 0; i < len(remainingSlice); i++ {
-		if remainingSlice[i] == ' ' {
-			spaceIndex = i
-			break
-		}
-	}
-	// Определяем конец URL
-	urlEndIndex := len(remainingSlice)
-	if spaceIndex != -1 {
-		urlEndIndex = spaceIndex
-	}
-	// Заменяем URL на звездочки
-	urlLength := urlEndIndex
-	asterisks := ""
-	for i := 0; i < urlLength; i++ {
-		asterisks += "*"
-	}
-	// Собираем результат: часть до URL + звездочки + часть с началом пробела
-	result := string(userInputSlice[:patternIndex]) + pattern + asterisks
-	// Добавляем оставшуюся часть строки (если есть)
-	if spaceIndex != -1 {
-		result += string(remainingSlice[spaceIndex:])
-	}
+	// Добавляем оставшуюся часть строки
+	result += string(userInputSlice[currentPos:])
 	return result
 }
 
@@ -66,8 +66,5 @@ func main() {
 	if scanner.Scan() {
 		userInput = scanner.Text()
 	}
-	receiveUserInput(userInput)
-	resultOutput := receiveUserInput(userInput)
-	fmt.Println("Result:", resultOutput)
-
+	fmt.Println(receiveUserInput(userInput))
 }
